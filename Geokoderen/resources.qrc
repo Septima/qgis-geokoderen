@@ -1,0 +1,6 @@
+<RCC>
+    <qresource prefix="/plugins/Geokoderen" >
+        <file>icon.png</file>
+        <file>icon_active.png</file>
+    </qresource>
+</RCC>
