@@ -41,7 +41,7 @@ SOURCES = \
 	geokoderen.py \
 	pointtool.py
 
-PLUGINNAME = Geokoderen
+PLUGINNAME = geokoderen
 
 PY_FILES = \
 	__init__.py \
