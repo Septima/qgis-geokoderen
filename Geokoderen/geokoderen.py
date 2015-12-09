@@ -65,10 +65,6 @@ class Geokoderen:
         self.actions = []
         self.menu = self.tr(u'&Geokoderen.dk')
 
-        # TODO: We are going to let the user set this up in a future iteration
-        self.toolbar = self.iface.addToolBar(u'Geokoderen.dk')
-        self.toolbar.setObjectName(u'Geokoderen.dk')
-
         self.icon_active = QIcon(':plugins/Geokoderen/icon_active.png')
         self.icon = QIcon(':plugins/Geokoderen/icon.png')
 
@@ -85,99 +81,36 @@ class Geokoderen:
     def tr(self, message):
         return QCoreApplication.translate('Geokoderen', message)
 
-    def add_action(
-        self,
-        icon_path,
-        text,
-        callback,
-        enabled_flag=True,
-        add_to_menu=True,
-        add_to_toolbar=True,
-        status_tip=None,
-        whats_this=None,
-        parent=None
-    ):
-        """Add a toolbar icon to the toolbar.
-
-        :param icon_path: Path to the icon for this action. Can be a resource
-            path (e.g. ':/plugins/foo/bar.png') or a normal file system path.
-        :type icon_path: str
-
-        :param text: Text that should be shown in menu items for this action.
-        :type text: str
-
-        :param callback: Function to be called when the action is triggered.
-        :type callback: function
-
-        :param enabled_flag: A flag indicating if the action should be enabled
-            by default. Defaults to True.
-        :type enabled_flag: bool
-
-        :param add_to_menu: Flag indicating whether the action should also
-            be added to the menu. Defaults to True.
-        :type add_to_menu: bool
-
-        :param add_to_toolbar: Flag indicating whether the action should also
-            be added to the toolbar. Defaults to True.
-        :type add_to_toolbar: bool
-
-        :param status_tip: Optional text to show in a popup when mouse pointer
-            hovers over the action.
-        :type status_tip: str
-
-        :param parent: Parent widget for the new action. Defaults None.
-        :type parent: QWidget
-
-        :param whats_this: Optional text to show in the status bar when the
-            mouse pointer hovers over the action.
-
-        :returns: The action that was created. Note that the action is also
-            added to self.actions list.
-        :rtype: QAction
-        """
-
-        icon = QIcon(icon_path)
-        action = QAction(icon, text, parent)
-        action.triggered.connect(callback)
-        action.setEnabled(enabled_flag)
-
-        if status_tip is not None:
-            action.setStatusTip(status_tip)
-
-        if whats_this is not None:
-            action.setWhatsThis(whats_this)
-
-        if add_to_toolbar:
-            self.toolbar.addAction(action)
-
-        if add_to_menu:
-            self.iface.addPluginToMenu(
-                self.menu,
-                action
-            )
-
-        self.actions.append(action)
-
-        return action
-
     def initGui(self):
         """Create the menu entries and toolbar icons inside the QGIS GUI."""
 
-        icon_path = ':/plugins/Geokoderen/icon.png'
-        self.add_action(
-            icon_path,
-            text=self.tr(u'Aktiver knappen, tryk herefter i kortet for at åbne i Geokoderen.dk'),
-            callback=self.run,
-            parent=self.iface.mainWindow()
+        # Initialize main button
+        icon = QIcon(':/plugins/Geokoderen/icon.png')
+        self.geokoderen_action = QAction(
+            icon,
+            self.tr(u'Aktiver knappen, tryk herefter i kortet for at åbne i Geokoderen.dk'),
+            self.iface.mainWindow()
         )
+        self.geokoderen_action.triggered.connect(self.run)
+        self.geokoderen_action.setEnabled(True)
+        # add action to plugin menu
+        self.iface.addPluginToMenu(self.menu, self.geokoderen_action)
+        # Add button to toolbar
+        self.iface.addToolBarIcon(self.geokoderen_action)
+        # add to self.action for proper deletion
+        self.actions.append(self.geokoderen_action)
 
-        self.add_action(
-            None,
-            text=self.tr(u'Om pluginet'),
-            callback=self.open_about_dialog,
-            parent=self.iface.mainWindow(),
-            add_to_toolbar=False
+        # Initialize about menu
+        self.about_action = QAction(
+            self.tr(u'Om pluginet'),
+            self.iface.mainWindow()
         )
+        self.about_action.triggered.connect(self.open_about_dialog)
+        self.about_action.setEnabled(True)
+        # Add action to plugin menu
+        self.iface.addPluginToMenu(self.menu, self.about_action)
+        # add to self.action for proper deletion
+        self.actions.append(self.about_action)
 
         self.pointtool.activated.connect(self.set_icon_active)
         self.pointtool.deactivated.connect(self.set_icon_inactive)
@@ -196,8 +129,6 @@ class Geokoderen:
                 action
             )
             self.iface.removeToolBarIcon(action)
-        # remove the toolbar
-        del self.toolbar
 
     def open_about_dialog(self):
         about = self.tr(
