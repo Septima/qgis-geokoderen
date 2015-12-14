@@ -10,7 +10,7 @@
 name=Geokoderen
 qgisMinimumVersion=2.0
 description=Plugin til at åbne et punkt fra QGIS i Geokoderen.dk
-version=0.1
+version=0.2
 author=Septima P/S
 email=kontakt@septima.dk
 
